@@ -2,6 +2,8 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QSlider, QComboBox, QFileDialog
 from PyQt5.QtGui import QImage, QPixmap, QClipboard
 from PyQt5.QtCore import Qt
+import cv2
+import numpy as np
 
 class ColorThresholdSelector(QWidget):
     def __init__(self):
@@ -147,10 +149,6 @@ class ColorThresholdSelector(QWidget):
         # 更新阈值并显示结果
         if self.image is None:
             return
-
-        import cv2
-        import numpy as np
-
         color_space = self.color_space_combo.currentText()
         if color_space == 'RGB':
             img = self.image
@@ -163,14 +161,14 @@ class ColorThresholdSelector(QWidget):
         lower = np.array([self.sliders[i].value() for i in range(0, 6, 2)])
         upper = np.array([self.sliders[i].value() for i in range(1, 6, 2)])
 
-        # 对LAB颜色空间进行特殊处理
+        # 对LAB颜色空间范围映射
         if color_space == 'LAB':
             lower[0] = int(lower[0] * 255 / 100)
             upper[0] = int(upper[0] * 255 / 100)
             lower[1:] = lower[1:] + 128
             upper[1:] = upper[1:] + 128
 
-        # 创建掩码并应用
+        # 创建掩码
         mask = cv2.inRange(img, lower, upper)
         result = cv2.bitwise_and(self.image, self.image, mask=mask)
 
