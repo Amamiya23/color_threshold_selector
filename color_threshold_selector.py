@@ -1,4 +1,4 @@
-import sys
+import sys 
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QSlider, QComboBox, QFileDialog
 from PyQt5.QtGui import QImage, QPixmap, QClipboard
 from PyQt5.QtCore import Qt
@@ -92,13 +92,17 @@ class ColorThresholdSelector(QWidget):
             "图像文件 (*.png *.jpg *.jpeg *.bmp *.gif *.tif *.tiff *.webp)"
         )
         if file_name:
-            import cv2
-            self.image = cv2.imread(file_name)
-            if self.image is not None:
-                self.display_image(self.source_label, self.image)
-                self.update_threshold()
-            else:
-                print(f"加载图像失败: {file_name}")
+            try:
+                # 使用numpy.fromfile读取图像数据
+                image_data = np.fromfile(file_name, dtype=np.uint8)
+                self.image = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
+                if self.image is not None:
+                    self.display_image(self.source_label, self.image)
+                    self.update_threshold()
+                else:
+                    print(f"加载图像失败: {file_name}")
+            except Exception as e:
+                print(f"加载图像时发生异常: {e}")
 
     def update_color_space(self):
         # 更新颜色空间和滑块范围
